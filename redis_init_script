@@ -7,7 +7,7 @@ REDISPORT=16000
 EXEC=${OPENSHIFT_REPO_DIR}bin/redis-server
 CLIEXEC=${OPENSHIFT_REPO_DIR}bin/redis-cli
 
-PIDFILE=${OPENSHIFT_DATA_DIR}redis/redis.pid
+PIDFILE=${OPENSHIFT_DATA_DIR}redis/data/redis.pid
 CONF=${OPENSHIFT_DATA_DIR}redis/redis.conf
 
 case "$1" in

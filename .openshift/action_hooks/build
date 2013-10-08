@@ -1,0 +1,66 @@
+#!/bin/bash
+# This is a simple build script and will be executed on your CI system if 
+# available.  Otherwise it will execute while your application is stopped
+# before the deploy step.  This script gets executed directly, so it
+# could be python, php, ruby, etc
+
+OPENSHIFT_BIN=${OPENSHIFT_REPO_DIR}bin/
+export PATH=${OPENSHIFT_BIN}:$PATH
+
+REDIS_VERSION=2.4.16
+REDIS_FILE=redis-${REDIS_VERSION}.tar.gz
+REDIS_URL=http://redis.googlecode.com/files/${REDIS_FILE}
+REDIS_TMP=${OPENSHIFT_TMP_DIR}redis/
+REDIS_PATH=${OPENSHIFT_DATA_DIR}redis/
+REDIS_DATA=${REDIS_PATH}data/
+REDIS_SERVER=${OPENSHIFT_BIN}redis-server
+REDIS_CONF_SRC=${OPENSHIFT_REPO_DIR}redis.conf
+REDIS_CONF_DST=${REDIS_PATH}redis.conf
+REDIS_INITD_SRC=${OPENSHIFT_REPO_DIR}redis_init_script
+REDIS_INITD_DST=${OPENSHIFT_BIN}redis
+REDIS_PID=${REDIS_DATA}redis.pid
+REDIS_PORT=16000
+REDIS_LOGFILE=${REDIS_DATA}redis.log
+
+if [ ${OPENSHIFT_NODEJS_IP} ]; then
+	REDIS_IP=${OPENSHIFT_NODEJS_IP}
+fi
+
+if [ ${OPENSHIFT_PYTHON_IP} ]; then
+	REDIS_IP=${OPENSHIFT_PYTHON_IP}
+fi
+
+if [ ${OPENSHIFT_INTERNAL_IP} ]; then
+	REDIS_IP=${OPENSHIFT_INTERNAL_IP}
+fi
+
+if [ ${OPENSHIFT_PHP_IP} ]; then
+	REDIS_IP=${OPENSHIFT_PHP_IP}
+fi
+
+cd ${OPENSHIFT_TMP_DIR}
+
+rm -rf ${REDIS_TMP}
+mkdir ${REDIS_TMP}
+
+wget -nc ${REDIS_URL} -P ${OPENSHIFT_TMP_DIR}
+tar -xvf ${OPENSHIFT_TMP_DIR}${REDIS_FILE} -C ${REDIS_TMP} --strip-components 1
+
+make -e install PREFIX=${OPENSHIFT_REPO_DIR} -C ${REDIS_TMP}
+
+if [ ! -d ${REDIS_PATH} ]; then
+    mkdir -p {${REDIS_PATH},${REDIS_DATA}}
+fi
+
+touch ${REDIS_LOGFILE}
+
+sed -e "s|\$PIDFILE|${REDIS_PID}|g" \
+    -e "s|\$PORT|${REDIS_PORT}|g" \
+    -e "s|\$IP|${REDIS_IP}|g" \
+    -e "s|\$LOGFILE|${REDIS_LOGFILE}|g" \
+    -e "s|\$DIR|${REDIS_DATA}|g" ${REDIS_CONF_SRC} > ${REDIS_CONF_DST}
+
+mv -f ${REDIS_INITD_SRC} ${REDIS_INITD_DST}
+chmod +x ${REDIS_INITD_DST}
+
+[ -f ${REDIS_PID} ] || ${REDIS_SERVER} ${REDIS_CONF_DST}

@@ -1,0 +1,6 @@
+#!/bin/bash
+# The logic to stop your application should be put in this script.
+
+export PATH=${OPENSHIFT_REPO_DIR}bin/:$PATH
+
+redis stop

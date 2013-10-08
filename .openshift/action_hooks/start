@@ -1,0 +1,8 @@
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_PYTHON_IP:8080
+
+export PATH=${OPENSHIFT_REPO_DIR}bin/:$PATH
+
+redis start

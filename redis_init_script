@@ -3,6 +3,22 @@
 # Simple Redis init.d script conceived to work on Linux systems
 # as it does use of the /proc filesystem.
 
+if [ ${OPENSHIFT_NODEJS_IP} ]; then
+    REDISIP=${OPENSHIFT_NODEJS_IP}
+fi
+
+if [ ${OPENSHIFT_PYTHON_IP} ]; then
+    REDISIP=${OPENSHIFT_PYTHON_IP}
+fi
+
+if [ ${OPENSHIFT_INTERNAL_IP} ]; then
+    REDISIP=${OPENSHIFT_INTERNAL_IP}
+fi
+
+if [ ${OPENSHIFT_PHP_IP} ]; then
+    REDISIP=${OPENSHIFT_PHP_IP}
+fi
+
 REDISPORT=16000
 EXEC=${OPENSHIFT_REPO_DIR}bin/redis-server
 CLIEXEC=${OPENSHIFT_REPO_DIR}bin/redis-cli
@@ -27,7 +43,7 @@ case "$1" in
         else
                 PID=$(cat $PIDFILE)
                 echo "Stopping ..."
-                $CLIEXEC -p $REDISPORT shutdown
+                $CLIEXEC -h $REDISIP -p $REDISPORT shutdown
                 while [ -x /proc/${PID} ]
                 do
                     echo "Waiting for Redis to shutdown ..."

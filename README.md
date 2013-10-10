@@ -28,10 +28,11 @@ You can verify the installation using SSH to connect with the Openshift user acc
 Other example.
 
      $ ./redis-cli -h $OPENSHIFT_NODEJS_IP -p 16000
-     redis 127.7.232.129:16000> set mykey "rodrigo"
+     redis 127.7.231.127:16000> set mykey "rodrigo"
      OK
-     redis 127.7.232.129:16000> get mykey
+     redis 127.7.231.127:16000> get mykey
      "rodrigo"
-     redis 127.7.232.129:16000> 
-
+     redis 127.7.231.127:16000> 
+     
+Note: For this example, when we create an nodejs app, the $OPENSHIFT_NODEJS_IP environment variable is created with the valid IP.
 
